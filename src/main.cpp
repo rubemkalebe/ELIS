@@ -2,6 +2,11 @@
 #include <cstdlib>
 #include "elis.hpp"
 
+void pause() {
+    std::cout << "\nPressione qualquer tecla para continuar...\n";
+    char tmp = getch();
+}
+
 int main(int argc, char **argv) {
 
     system("title ELIS - Editor de Linhas Simples"); //Muda o titulo da janela
@@ -9,16 +14,11 @@ int main(int argc, char **argv) {
     if(argc == 2) {									 //Verifica quantidade de parametros (esse indica que o usuario entrou com um arquivo)
         std::string nomeArq = argv[1];				 //Pega o nome do arquivo
         ELIS *elis = new ELIS(nomeArq);
-
-        openArq(texto, nomeArq, nomeArq, linAtual);	 //Abre ele
-        insertDepois(texto, linAtual, linAtual);	 //Ja inicia o programa no modo de edicao
-        modoComando(texto, nomeArq, linAtual);		 //Quando sair vai para o modo de comando
     } else {
         ELIS *elis = new ELIS();
     }
 
-    pause(); //Pausa
+    pause();
 
     return 0;
-
 }

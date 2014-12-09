@@ -8,11 +8,6 @@ ELIS::ELIS() {
 
 ELIS::ELIS(std::string nomeArq) {
     file = new File(nomeArq);
-}
-
-
-
-void ELIS::pause() {
-    std::cout << "\nPressione qualquer tecla para continuar...\n";
-    char tmp = getch();
+    file.insertDepois(texto, linAtual, linAtual);   //Ja inicia o programa no modo de edicao
+    prompt.modoComando(texto, nomeArq, linAtual);	//Quando sair vai para o modo de comando
 }
