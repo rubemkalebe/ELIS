@@ -7,6 +7,20 @@ public:
 
     Interpreter();
 
+    void modoComando();                     //Executa o modo de comando
+	void modoComando(std::string nomeArq);  //Executa o modo de comando quando houver parametro
+    void comand_H();                        //Executa o comando de Ajuda		 (Descreve comandos)
+
+private:
+
+    void comand_I(std::list<std::string> &texto, unsigned int &linAtual);           //Executa as instrucoes do comando I (Inserir texto antes)
+	void comand_A(std::list<std::string> &texto, unsigned int &linAtual);           //Executa as instrucoes do comando A (Inserir texto depois)
+	void comand_G(std::list<std::string> &texto, unsigned int &linAtual);			//Executa as instrucoes do comando G (Editar linha)
+	void comand_M(std::list<std::string> &texto, unsigned int &linAtual);           //Executa as instrucoes do comando M (Torna uma linha atual)
+	void comand_DL(std::list<std::string> &texto, unsigned int &linAtual, char op); //Executa as instrucoes do comando D ou L (Remover/Listar)
+
+    void funcBACKSPACE(std::string &op); //Funciona como Backspace no modo de comando
+
 };
 
 #endif // INTERPRETER_HPP
