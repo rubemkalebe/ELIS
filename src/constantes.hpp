@@ -1,5 +1,5 @@
-#ifndef CONSTANTES_HPP_INCLUDED
-#define CONSTANTES_HPP_INCLUDED
+#ifndef CONSTANTES_HPP
+#define CONSTANTES_HPP
 
 ////////////////Constantes que representam teclas ou posicoes na tela/////////////////////////////////
 
@@ -12,4 +12,4 @@ enum {
     MIN_COL = 2, MAX_COL = 79, MIN_LIN = 0, ESP_TAB = 5
 };
 
-#endif // CONSTANTES_HPP_INCLUDED
+#endif // CONSTANTES_HPP

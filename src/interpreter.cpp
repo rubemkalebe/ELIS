@@ -1,12 +1,12 @@
+#include "elis.hpp"
+#include "screen.hpp"
 #include "interpreter.hpp"
+#include "constantes.hpp"
 
-Interpreter::Interpreter() {
-
-}
-
-void modoComando() {
+void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
     char op, tmp;       	//op -> armazena comando ; tmp -> armazena a entrada do teclado apos o comando
                             //(identifica o pressionamento do ENTER, por exemplo)
+    bool alterado = false;	//Identifica se foram feitas alteracoes no texto
     std::string nomeArq2write, nomeArq2read; //Variaveis para salvar ou ler arquivo
     //O laco do modo de comando executara indefinidamente enquanto o usuario nao quiser sair
     do {
@@ -120,9 +120,10 @@ void modoComando() {
     } while(op != 'q' || op != 'Q');
 }
 
-void modoComando(std::string nomeArq) {
+void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned int &linAtual) {
     char op, tmp;       	//op -> armazena comando ; tmp -> armazena a entrada do teclado apos o comando
                             //(identifica o pressionamento do ENTER, por exemplo)
+    bool alterado = true;	//Identifica se foram feitas alteracoes no texto
     std::string nomeArq2write = nomeArq, nomeArq2read; //Variaveis para salvar ou ler arquivo
     //O laco do modo de comando executara indefinidamente enquanto o usuario nao quiser sair
     do {
@@ -459,7 +460,7 @@ void comand_H() {
     pause();
 }
 
-void Interpreter::funcBACKSPACE(std::string &op) {
+void funcBACKSPACE(std::string &op) {
     if(op != "") {
         op.erase(op.end() - 1);  //Remove ultimo caracter
         op.end();                //Move iterador para o fim da string

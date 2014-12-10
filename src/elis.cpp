@@ -1,13 +1,339 @@
 #include "elis.hpp"
+#include "screen.hpp"
+#include "keyboard.hpp"
+#include "constantes.hpp"
 
-ELIS::ELIS() {
-    file = new File();
-    prompt.comand_H();			            //Ao iniciar mostra o comando ajuda
-    prompt.modoComando(texto, linAtual);    //Inicia o modo de comando
+void insertAntes(std::list<std::string> &texto, unsigned int &l, unsigned int &linAtual) {
+    if(l == 0) l++; 						   //Obviamente nao podemos inserir antes da posicao 0
+    unsigned int col = MIN_COL, lin = MIN_LIN; //Variaveis que representam espacos na tela
+    char c;                                    //Entrada do teclado
+    std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    std::cout << "> ";
+    while(true) {
+        c = (char) getch();
+        if(c == ESC) {                     //Tecla ESC
+            it = texto.begin();
+            std::advance (it, l-1);        //Insere antes de uma determinada linha
+            funcESC(texto, linha, it, l);
+            break;
+        } else if(c == ENTER) {            //Tecla ENTER
+            it = texto.begin();
+            std::advance (it, l-1);        //Insere antes de uma determinada linha
+            funcENTER(texto, linha, lin, col, it);
+            l++;                           //Incrementa controle de linhas
+        }
+        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
+        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
+        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
+        else if(c == CTRL_V)    funcPaste_I(texto, linha, lin, col, l);  		//CTRL+V para colar
+        //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
+        else if(c == CAR_ESP) {
+            c = getche();
+            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
+            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
+            else if(c == UP)    continue;                       //Tecla para cima
+            else if(c == DOWN)  continue;                       //Tecla para baixo
+            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
+            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
+            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
+            else                continue;                       //Nao serao aceitas outras teclas
+        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+    }
+    linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
 }
 
-ELIS::ELIS(std::string nomeArq) {
-    file = new File(nomeArq);
-    file.insertDepois(texto, linAtual, linAtual);   //Ja inicia o programa no modo de edicao
-    prompt.modoComando(texto, nomeArq, linAtual);	//Quando sair vai para o modo de comando
+void editLinha(std::list<std::string> &texto, std::string &linha, unsigned int &l, unsigned int &linAtual) {
+    unsigned int col = MIN_COL, lin = MIN_LIN; //Variaveis que representam espacos na tela
+    char c;                                    //Entrada do teclado
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    std::cout << "> ";
+    imprimeLinha(linha, lin, col);
+    while(true) {
+        c = (char) getch();
+        if(c == ESC) {                     //Tecla ESC
+            it = texto.begin();
+            std::advance (it, l-1);        //Insere antes de uma determinada linha
+            funcESC(texto, linha, it, l);
+            break;
+        } else if(c == ENTER) {            //Tecla ENTER
+            it = texto.begin();
+            std::advance (it, l-1);        //Insere antes de uma determinada linha
+            funcENTER(texto, linha, lin, col, it);
+            break;
+        }
+        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
+        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
+        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
+        else if(c == CTRL_V)    funcPaste_I(texto, linha, lin, col, linAtual);  //CTRL+V para colar
+        //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
+        else if(c == CAR_ESP) {
+            c = getche();
+            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
+            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
+            else if(c == UP)    continue;                       //Tecla para cima
+            else if(c == DOWN)  continue;                       //Tecla para baixo
+            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
+            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
+            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
+            else                continue;                       //Nao serao aceitas outras teclas
+        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+    }
+    linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
+}
+
+void insertDepois(std::list<std::string> &texto, unsigned int &l, unsigned int &linAtual) {
+    linAtual = l; 							   //Necessario para inserir o texto na posicao correta
+    unsigned int col = MIN_COL, lin = MIN_LIN; //Variaveis que representam espacos na tela
+    char c;                                    //Entrada do teclado
+    std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    std::cout << "> ";
+    while(true) {
+        c = (char) getch();
+        if(c == ESC) {                     //Tecla ESC
+            it = texto.begin();
+            std::advance (it, linAtual);   //Insere depois de uma determinada linha
+            funcESC(texto, linha, it, linAtual);
+            break;
+        } else if(c == ENTER) {            //Tecla ENTER
+            it = texto.begin();
+            std::advance (it, linAtual);   //Insere depois de uma determinada linha
+            funcENTER(texto, linha, lin, col, it);
+            linAtual++;                    //Incrementa controle de linhas
+        }
+        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
+        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
+        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
+        else if(c == CTRL_V)    funcPaste_A(texto, linha, lin, col, linAtual);  //CTRL+V para colar
+        //Alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
+        else if(c == CAR_ESP) {
+            c = getche();
+            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
+            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
+            else if(c == UP)    continue;                       //Tecla para cima
+            else if(c == DOWN)  continue;                       //Tecla para baixo
+            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
+            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
+            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
+            else                continue;                       //Nao serao aceitas outras
+        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+    }
+    linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
+}
+
+void funcCopy(std::string &linha) {
+    HGLOBAL hText;
+    char *pText;
+    hText = GlobalAlloc(GMEM_DDESHARE|GMEM_MOVEABLE, linha.size()+1); 	//Aloca espaco para armazenar a linha
+    pText = (char*)GlobalLock(hText);
+    const char *c = linha.c_str(); 										//Transforma a string em um vetor de char
+    strcpy(pText, c);
+    GlobalUnlock(hText);
+
+    OpenClipboard(NULL);												//Abre Clipboard
+    EmptyClipboard();													//Limpa o Clipboard
+    SetClipboardData(CF_OEMTEXT, hText);								//Insere a linha no Clipboard (O "CF_OEMTXT" garante que os acentos funcionem)
+    CloseClipboard();													//Fecha Clipboard
+    GlobalFree(hText);
+}
+
+void funcPaste_I(std::list<std::string> &texto, std::string &linha, unsigned int &lin, unsigned int &col, unsigned int &linAtual) {
+    std::list<std::string>::iterator it;									//Iterador para referenciar um elemento na lista
+    OpenClipboard(NULL);													//Abre Clipboard
+    HANDLE hData = GetClipboardData(CF_OEMTEXT);							//Le os dados (O "CF_OEMTXT" garante que os acentos venham)
+    if(hData == NULL)   return;												//Se nao for um texto, ou for outro tipo de cola, ele nao aceita
+    char *pszText = static_cast<char*>( GlobalLock(hData) );				//Converte os dados para um vetor de char
+    CloseClipboard();														//Fecha Clipboard
+    for(int i = 0; pszText[i] != '\0'; i++) {
+        if(pszText[i] == '\n') {											//Caracter '\n' corresponde ao ENTER
+            it = texto.begin();
+            std::advance(it, linAtual-1);									//Estamos no insertAntes
+            funcENTER(texto, linha, lin, col, it);
+            linAtual++;
+        } else if(col >= MAX_COL)   continue;								//Nao deixa ultrapassar a linha do terminal
+        else {
+            linha.insert(linha.begin() + (col - MIN_COL), pszText[i]);      //Concatena caracteres
+            col++;
+        }
+        imprimeLinha(linha, lin, col);
+    }
+    col = linha.size() + MIN_COL; 	//Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
+}
+
+void funcPaste_A(std::list<std::string> &texto, std::string &linha, unsigned int &lin, unsigned int &col, unsigned int &linAtual) {
+    std::list<std::string>::iterator it;									//Iterador para referenciar um elemento na lista
+    OpenClipboard(NULL);													//Abre Clipboard
+    HANDLE hData = GetClipboardData(CF_OEMTEXT);							//Le os dados (O "CF_OEMTXT" garante que os acentos venham)
+    if(hData == NULL)   return;												//Se nao for um texto, ou for outro tipo de cola, ele nao aceita
+    char *pszText = static_cast<char*>( GlobalLock(hData) );				//Converte os dados para um vetor de char
+    CloseClipboard();														//Fecha Clipboard
+    for(int i = 0; pszText[i] != '\0'; i++) {
+        if(pszText[i] == '\n') {											//Caracter '\n' corresponde ao ENTER
+            it = texto.begin();
+            std::advance(it, linAtual);										//Estamos no insertDepois
+            funcENTER(texto, linha, lin, col, it);
+            linAtual++;
+        } else if(col >= MAX_COL)   continue;								//Nao deixa ultrapassar a linha do terminal
+        else {
+            linha.insert(linha.begin() + (col - MIN_COL), pszText[i]);      //Concatena caracteres
+            col++;
+        }
+        imprimeLinha(linha, lin, col);
+    }
+    col = linha.size() + MIN_COL; 	//Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
+}
+
+void imprimeLinha(std::string linha, unsigned int lin, unsigned int col) {
+    gotoxy(MIN_COL, lin);
+    std::cout << linha;   //Imprime a linha no local adequado
+    gotoxy(col, lin);
+}
+
+void setLinha(std::list<std::string> &texto, unsigned int &linAtual, unsigned int linha) {
+    if(linha <= texto.size()) {			//Se a linha esta dentro do limite (de 0 ate a ultima linha)
+        linAtual = linha;
+        std::cout << "A linha " << linAtual << " foi definidada como atual!\n";
+        pause();
+    }
+    else
+        std::cout << "Comando inv\240lido! Essa linha n\306o existe!" << std::endl;
+}
+
+void listaLinhas(std::list<std::string> &texto) {
+    if(texto.size() == 0) {
+        std::cout << "Opera\207\306o Inv\240lida!! Nada foi escrito!!\n";
+        pause();
+        return;
+    }
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    for(it = texto.begin(); it != texto.end(); it++) {
+       std::cout << "> ";
+       std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+    pause();
+}
+
+void listaLinhas(std::list<std::string> &texto, unsigned int n) {
+    unsigned int tmp = 1;                      								   //Variavel para controlar listagem de linhas
+    std::list<std::string>::iterator it;       								   //Iterador para referenciar um elemento na lista
+    for(it = texto.begin(); (it != texto.end()) && (tmp <= n); it++, tmp++) {  //Lista a partir da linha 1 ate n
+       std::cout << "> ";
+       std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+    pause();
+}
+
+void listaLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m) {
+    std::list<std::string>::iterator it;      	 								//Iterador para referenciar um elemento na lista
+    it = texto.begin();
+    std::advance(it, n-1);                     									//Lembre-se que na lista a linha inicial é n-1
+    for(unsigned int tmp = n; (it != texto.end()) && (tmp <= m); it++, tmp++) { //Lista a partir de uma linha ate outra
+       std::cout << "> ";
+       std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+    pause();
+}
+
+void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int &linAtual) {
+    if(n == 0) n++;                            //Nao podemos remover a linha 0-1
+    if(texto.size() == 0) {
+        std::cout << "Opera\207\306o Inv\240lida!! Nada foi escrito!!\n";
+        pause();
+        return;
+    }
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    it = texto.begin();
+    std::advance(it, n-1);
+    texto.erase(it);
+    std::cout << "Opera\207\306o realizada com sucesso!!\n";
+    pause();
+    linAtual = texto.size(); //Por padrao, sempre ao final de uma alteracao definimos a ultima linha como atual
+}
+
+void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m, unsigned int &linAtual) {
+    if(n == 0) n++;                            //Nao podemos remover a linha 0-1
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    it = texto.begin();
+    std::advance(it, n-1);
+    for(unsigned int tmp = n; (it != texto.end()) && (tmp <= m); tmp++) { //Remove a partir de uma linha ate outra
+        texto.erase(it);
+        it = texto.begin();
+        std::advance(it, n-1);                 //Aponta sempre para a posicao na qual deve remover
+    }
+    std::cout << "Opera\207\306o realizada com sucesso!!\n";
+    pause();
+    linAtual = texto.size(); //Por padrao, sempre ao final de uma alteracao definimos a ultima linha como atual
+}
+
+void writeArq(std::list<std::string> &texto, std::string nomeArq) {
+    std::list<std::string>::iterator it; //Iterador para referenciar um elemento na lista
+    std::ofstream fout(nomeArq.c_str()); //Abre arquivo para gravacao
+    if(fout.is_open()) {
+        for(it = texto.begin(); it != texto.end(); it++)
+           fout << *it << std::endl;
+        fout.close();                   //Fecha arquivo
+    } else {
+        std::cout << "Erro na leitura do arquivo!\n";
+        return;
+    }
+}
+
+void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
+    char tmp;
+    std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
+    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
+    std::ifstream fin(nomeArq.c_str());        //Abre arquivo para leitura
+    if(fin.is_open()) {
+        if(!texto.empty()) {
+            std::cout << "Tem certeza que deseja apagar seu texto e abrir esse arquivo? ";
+            tmp = getche();
+            if(tmp == 's' || tmp == 'S') {
+                for(it = texto.begin(); it != texto.end(); it = texto.begin())
+                    texto.erase(it);               //Apaga linhas remanescentes
+            }
+        }
+        while(getline(fin, linha))
+            texto.push_back(linha);            //Insere linhas presentes no arquivo
+        linAtual = texto.size();               //Por padrao, sempre ao final de uma alteracao definimos a ultima linha como atual
+        fin.close();                           //Fecha arquivo
+    } else {
+            nomeArq2write = nomeArq;
+            system("cls");
+            writeArq(texto, nomeArq);
+    }
+}
+
+void readArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
+    char tmp;
+    std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
+    std::ifstream fin(nomeArq.c_str());        //Abre arquivo para leitura
+    if(fin.is_open()) {
+        while(getline(fin, linha))
+            texto.push_back(linha);            //Insere linhas presentes no arquivo
+        linAtual = texto.size();               //Por padrao, sempre ao final de uma alteracao definimos a ultima linha como atual
+        std::cout << "Leitura realizada com sucesso!\n";
+        pause();
+        fin.close();                           //Fecha arquivo
+    } else {
+        std::cout << "Arquivo n\306o encontrado!\n" << "Voce deseja criar um arquivo com esse nome? [S/N] ";
+        tmp = getche();
+        if(tmp == 's' || tmp == 'S') {
+            std::cout << "\nDigite o nome do arquivo que deseja criar: ";
+            std::cin >> nomeArq;
+            nomeArq2write = nomeArq;
+            system("cls");
+            writeArq(texto, nomeArq);
+        }
+        else
+            return;
+    }
+}
+
+void pause() {
+    std::cout << "\nPressione qualquer tecla para continuar...\n";
+    char tmp = getch();
 }

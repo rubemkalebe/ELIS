@@ -3,13 +3,6 @@
 
 #include <Windows.h>  //Biblioteca para mover cursor
 
-class Screen {
-
-public:
-
-    Screen();
-
-    static void gotoxy(int x, int y); //Funcao para mover o cursor
-};
+void gotoxy(int x, int y); //Funcao para mover o cursor
 
 #endif // SCREEN_HPP
