@@ -69,9 +69,10 @@ void editLinha(std::list<std::string> &texto, std::string &linha, unsigned int &
     unsigned int col = MIN_COL, lin = MIN_LIN; //Variaveis que representam espacos na tela
     char c;                                    //Entrada do teclado
     std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
-    std::cout << "> ";
-    imprimeLinha(linha, lin, col);
+    update(texto, linha, col);                  // Atualiza tela
+    imprimeLinha(linha, texto.size(), col);
     while(true) {
+        gotoxy(col, texto.size()+1);
         c = (char) getch();
         if(c == ESC) {                     //Tecla ESC
             it = texto.begin();
@@ -82,24 +83,44 @@ void editLinha(std::list<std::string> &texto, std::string &linha, unsigned int &
             it = texto.begin();
             std::advance (it, l-1);        //Insere antes de uma determinada linha
             funcENTER(texto, linha, lin, col, it);
+            update(texto, linha, col); // Atualiza tela
             break;
+        } else if(c == BACKSPACE) {         //Tecla BACKSPACE
+            funcBACKSPACE(linha, col, lin);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == TAB) {   //Tecla TAB
+            funcTAB(linha, lin, col);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == CTRL_C) { //CTRL+C para copiar linha
+            funcCopy(linha);
+        } else if(c == CTRL_V) { //CTRL+V para colar
+            funcPaste_A(texto, linha, lin, col, linAtual);
         }
-        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
-        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
-        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
-        else if(c == CTRL_V)    funcPaste_I(texto, linha, lin, col, linAtual);  //CTRL+V para colar
         //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
         else if(c == CAR_ESP) {
             c = getche();
-            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
-            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
-            else if(c == UP)    continue;                       //Tecla para cima
-            else if(c == DOWN)  continue;                       //Tecla para baixo
-            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
-            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
-            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
-            else                continue;                       //Nao serao aceitas outras teclas
-        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+            if(c == LEFT) {             //Tecla pra esquerda
+                funcLEFT(lin, col);
+            } else if(c == RIGHT) {     //Tecla pra direita
+                funcRIGHT(linha, lin, col);
+            } else if(c == UP) {        //Tecla para cima
+                continue;
+            } else if(c == DOWN) {      //Tecla para baixo
+                continue;
+            } else if(c == DEL) {       //Tecla Delete
+                funcDELETE(linha, lin, col);
+                update(texto, linha, texto.size(), col); // Atualiza tela
+            } else if(c == HOME) {      //Tecla Home
+                funcHOME(lin, col);
+            } else if(c == END) {       //Tecla END
+                funcEND(linha, lin, col);
+            } else {                    //Nao serao aceitas outras teclas
+                continue;
+            }
+        } else {
+            addChar(linha, lin, col, c);    //Recebe caracter
+            imprimeLinha(linha, texto.size(), col);
+        }
     }
     linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
 }
@@ -135,7 +156,7 @@ void insertDepois(std::list<std::string> &texto, unsigned int &l, unsigned int &
         } else if(c == CTRL_C) { //CTRL+C para copiar linha
             funcCopy(linha);
         } else if(c == CTRL_V) { //CTRL+V para colar
-            funcPaste_I(texto, linha, lin, col, l);
+            funcPaste_A(texto, linha, lin, col, linAtual);
         }
         //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
         else if(c == CAR_ESP) {
@@ -228,7 +249,7 @@ void funcPaste_A(std::list<std::string> &texto, std::string &linha, unsigned int
     col = linha.size() + MIN_COL; 	//Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
 }
 
-void imprimeLinha(std::string linha, unsigned int lin, unsigned int col) {
+void imprimeLinha(std::string &linha, unsigned int lin, unsigned int col) {
     gotoxy(MIN_COL, lin+1);
     std::cout << linha;   //Imprime a linha no local adequado
     gotoxy(col, lin+1);
@@ -251,8 +272,9 @@ void listaLinhas(std::list<std::string> &texto) {
         return;
     }
     std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
-    for(it = texto.begin(); it != texto.end(); it++) {
-       std::cout << "> ";
+    int i = 1;
+    for(it = texto.begin(); it != texto.end(); it++, i++) {
+       std::cout << i << " ";
        std::cout << *it << std::endl;
     }
     std::cout << std::endl;
@@ -262,8 +284,9 @@ void listaLinhas(std::list<std::string> &texto) {
 void listaLinhas(std::list<std::string> &texto, unsigned int n) {
     unsigned int tmp = 1;                      								   //Variavel para controlar listagem de linhas
     std::list<std::string>::iterator it;       								   //Iterador para referenciar um elemento na lista
+    int i = 1;
     for(it = texto.begin(); (it != texto.end()) && (tmp <= n); it++, tmp++) {  //Lista a partir da linha 1 ate n
-       std::cout << "> ";
+       std::cout << tmp << " ";
        std::cout << *it << std::endl;
     }
     std::cout << std::endl;
@@ -275,7 +298,7 @@ void listaLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m) 
     it = texto.begin();
     std::advance(it, n-1);                     									//Lembre-se que na lista a linha inicial é n-1
     for(unsigned int tmp = n; (it != texto.end()) && (tmp <= m); it++, tmp++) { //Lista a partir de uma linha ate outra
-       std::cout << "> ";
+       std::cout << tmp << " ";
        std::cout << *it << std::endl;
     }
     std::cout << std::endl;
@@ -323,7 +346,7 @@ void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m,
     linAtual = texto.size(); //Por padrao, sempre ao final de uma alteracao definimos a ultima linha como atual
 }
 
-void writeArq(std::list<std::string> &texto, std::string nomeArq) {
+void writeArq(std::list<std::string> &texto, std::string &nomeArq) {
     std::list<std::string>::iterator it; //Iterador para referenciar um elemento na lista
     std::ofstream fout(nomeArq.c_str()); //Abre arquivo para gravacao
     if(fout.is_open()) {
@@ -336,7 +359,7 @@ void writeArq(std::list<std::string> &texto, std::string nomeArq) {
     }
 }
 
-void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
+void openArq(std::list<std::string> &texto, std::string &nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
     char tmp;
     std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
     std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
@@ -346,8 +369,11 @@ void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &no
             std::cout << "Tem certeza que deseja apagar seu texto e abrir esse arquivo? ";
             tmp = getche();
             if(tmp == 's' || tmp == 'S') {
-                for(it = texto.begin(); it != texto.end(); it = texto.begin())
+                for(it = texto.begin(); it != texto.end(); it = texto.begin()) {
                     texto.erase(it);               //Apaga linhas remanescentes
+                }
+                std::string titulo = "title " + nomeArq + " - ELIS";
+                system(titulo.c_str());
             } else {
                 return;
             }
@@ -363,7 +389,7 @@ void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &no
     system("cls");
 }
 
-void readArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
+void readArq(std::list<std::string> &texto, std::string &nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
     char tmp;
     std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
     std::ifstream fin(nomeArq.c_str());        //Abre arquivo para leitura

@@ -29,7 +29,7 @@ void funcPaste_A(std::list<std::string> &texto, std::string &linha, unsigned int
                  unsigned int &col, unsigned int &linAtual);
 
 //Funcao que imprime a linha (quando edicao)
-void imprimeLinha(std::string linha, unsigned int lin, unsigned int col);
+void imprimeLinha(std::string &linha, unsigned int lin, unsigned int col);
 
 //Define uma linha como atual
 void setLinha(std::list<std::string> &texto, unsigned int &linAtual, unsigned int linha);
@@ -53,14 +53,14 @@ void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int &l
 void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m, unsigned int &linAtual);
 
 //Grava arquivo
-void writeArq(std::list<std::string> &texto, std::string nomeArq);
+void writeArq(std::list<std::string> &texto, std::string &nomeArq);
 
 //Abre um arquivo
-void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write,
+void openArq(std::list<std::string> &texto, std::string &nomeArq, std::string &nomeArq2write,
              unsigned int &linAtual);
 
 //Insere um arquivo no fim do seu texto
-void readArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write,
+void readArq(std::list<std::string> &texto, std::string &nomeArq, std::string &nomeArq2write,
              unsigned int &linAtual);
 
 //Funcao criada para pausar o programa. Foi criada para substituir a system("pause"), tendo em vista a eficiencia

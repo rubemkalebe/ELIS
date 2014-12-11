@@ -10,7 +10,7 @@
 void modoComando(std::list<std::string> &texto, unsigned int &linAtual);
 
 //Executa o modo de comando quando houver parametro
-void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned int &linAtual);
+void modoComando(std::list<std::string> &texto, std::string &nomeArq, unsigned int &linAtual);
 
 //Executa as instrucoes do comando I (Inserir texto antes)
 void comand_I(std::list<std::string> &texto, unsigned int &linAtual);

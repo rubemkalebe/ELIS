@@ -3,7 +3,7 @@
 #include "keyboard.hpp"
 #include "constantes.hpp"
 
-void funcESC(std::list<std::string> &texto, std::string &linha, std::list<std::string>::iterator it, unsigned int &l) {
+void funcESC(std::list<std::string> &texto, std::string &linha, std::list<std::string>::iterator &it, unsigned int &l) {
     if(linha != "") {
         texto.insert(it, linha); //Insere linha
         std::cout << std::endl;
@@ -11,7 +11,7 @@ void funcESC(std::list<std::string> &texto, std::string &linha, std::list<std::s
         l--;                     //Necessario para controlar as linhas
 }
 
-void funcENTER(std::list<std::string> &texto, std::string &linha, unsigned int &lin, unsigned int &col, std::list<std::string>::iterator it) {
+void funcENTER(std::list<std::string> &texto, std::string &linha, unsigned int &lin, unsigned int &col, std::list<std::string>::iterator &it) {
     std::cout << std::endl;         //Pula linha
     texto.insert(it, linha);        //Insere linha
     linha = "";                     //Zera nova linha que sera usada
@@ -49,7 +49,7 @@ void funcLEFT(unsigned int lin, unsigned int &col) {
     gotoxy(col, lin);            //Apos decrementar o numerador das colunas movemos o cursor para a posicao correta
 }
 
-void funcRIGHT(std::string linha, unsigned int lin, unsigned int &col) {
+void funcRIGHT(std::string &linha, unsigned int lin, unsigned int &col) {
     if(col >= linha.length() + MIN_COL) return; //Verifica se pode aceitar
     col++;
     gotoxy(col, lin);            				//Apos decrementar o numerador das colunas movemos o cursor para a posicao correta
@@ -60,7 +60,7 @@ void funcHOME(unsigned int lin, unsigned int &col) {
     gotoxy(col, lin);            	//Apos decrementar o numerador das colunas movemos o cursor para a posicao correta
 }
 
-void funcEND(std::string linha, unsigned int lin, unsigned int &col) {
+void funcEND(std::string &linha, unsigned int lin, unsigned int &col) {
     col = linha.length() + MIN_COL; //Desloca o espaco necessario
     gotoxy(col, lin);            	//Apos decrementar o numerador das colunas movemos o cursor para a posicao correta
 }

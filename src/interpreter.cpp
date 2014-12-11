@@ -55,7 +55,6 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
                         writeArq(texto, nomeArq2write);
                         alterado = false;
                     } else if(tmp == ENTER && nomeArq2write == "") { //Se o usuario tentar salvar sem ter um nome para o arquivo
-                        system("cls");
                         std::cout << "Erro! Digite o nome do arquivo!\n";
                         pause();
                     } else {    									//Salva com o nome ja fornecido
@@ -71,6 +70,7 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
                         std::cout << "Digite o nome do arquivo para leitura: ";
                         std::cin >> nomeArq2read;
                         openArq(texto, nomeArq2read, nomeArq2write, linAtual);
+                        nomeArq2write = nomeArq2read;
                         alterado = true;
                     } else
                         continue; //Ignora entrada
@@ -101,7 +101,6 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
                     if(tmp == ENTER && alterado == false)
                         return;
                     else if(tmp == ENTER && alterado == true) { //Para nao perder o trabalho feito ele pergunta se quer sair sem salvar
-                            system("cls");
                             std::cout << "Tem certeza que deseja sair sem salvar? [S/N] ";
                             tmp = getche();
                             if(tmp == 's' || tmp == 'S')
@@ -122,7 +121,7 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
     } while(op != 'q' || op != 'Q');
 }
 
-void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned int &linAtual) {
+void modoComando(std::list<std::string> &texto, std::string &nomeArq, unsigned int &linAtual) {
     char op, tmp;       	//op -> armazena comando ; tmp -> armazena a entrada do teclado apos o comando
                             //(identifica o pressionamento do ENTER, por exemplo)
     bool alterado = true;	//Identifica se foram feitas alteracoes no texto
@@ -169,6 +168,8 @@ void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned in
                         system("cls");
                         std::cout << "Digite o nome do arquivo para grava\207\306o: ";
                         std::cin >> nomeArq2write;
+                        std::string titulo = "title " + nomeArq2write + " - ELIS";
+                        system(titulo.c_str());
                         writeArq(texto, nomeArq2write);
                         alterado = false;
                     } else {   //Salva com o nome ja fornecido
@@ -184,6 +185,7 @@ void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned in
                         std::cout << "Digite o nome do arquivo para leitura: ";
                         std::cin >> nomeArq2read;
                         openArq(texto, nomeArq2read, nomeArq2write, linAtual);
+                        nomeArq2write = nomeArq2read;
                         alterado = true;
                     } else
                         continue; //Ignora entrada
@@ -214,7 +216,6 @@ void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned in
                     if(tmp == ENTER && alterado == false)
                         return;
                     else if(tmp == ENTER && alterado == true) { //Para nao perder o trabalho feito ele pergunta se quer sair sem salvar
-                            system("cls");
                             std::cout << "Tem certeza que deseja sair sem salvar? [S/N] ";
                             tmp = getche();
                             if(tmp == 's' || tmp == 'S')
@@ -305,7 +306,6 @@ void comand_M(std::list<std::string> &texto, unsigned int &linAtual) {
     std::string op_lin; //String para armazenar a linha temporariamente
     tmp = getche();
     if(tmp == ENTER) {
-        system("cls");
         setLinha(texto, linAtual, linAtual); //Define ultima linha como atual
     } else if(tmp == ' ') {
         while(true) {
@@ -320,7 +320,6 @@ void comand_M(std::list<std::string> &texto, unsigned int &linAtual) {
                     pause();
                     return;
                 } else {
-                    system("cls");
                     setLinha(texto, linAtual, n); //Define linha passada como parametro como atual
                     return;
                 }
@@ -337,17 +336,20 @@ void comand_DL(std::list<std::string> &texto, unsigned int &linAtual, char op) {
     std::string op_lin;    //String para armazenar a linha temporariamente
     tmp = getche();
     if(tmp == ENTER) {
-        system("cls");
-        if(op == 'd' || op == 'D')      removeLinhas(texto, linAtual, linAtual); //Remove linha atual
-        else if(op == 'l' || op == 'L') listaLinhas(texto);                      //Lista todo o texto
+        if(op == 'd' || op == 'D') {
+            removeLinhas(texto, linAtual, linAtual); //Remove linha atual
+        } else if(op == 'l' || op == 'L') {
+            system("cls");
+            listaLinhas(texto);                      //Lista todo o texto
+        }
         return;
     } else if (tmp == ' ') {
         op_lin = "";
         while(true) {
             tmp2 = getche();
-            if(tmp2 >= '0' && tmp2 <= '9')
+            if(tmp2 >= '0' && tmp2 <= '9') {
                 op_lin.push_back(tmp2);         //Recebe numeros para formar linha
-            else if(tmp2 == ENTER) {
+            } else if(tmp2 == ENTER) {
                 const char *c = op_lin.c_str(); //Transforma a string em um vetor de char
                 n = atoi(c);                    //Usa atoi para converter o vetor de char com a linha para int
                 if(n > linAtual) {
@@ -355,9 +357,12 @@ void comand_DL(std::list<std::string> &texto, unsigned int &linAtual, char op) {
                     pause();
                     return;
                 }
-                system("cls");
-                if(op == 'd' || op == 'D')      removeLinhas(texto, n, linAtual); //Remove linha passada por parametro
-                else if(op == 'l' || op == 'L') listaLinhas(texto, n);            //Lista texto ate a linha n
+                if(op == 'd' || op == 'D') {
+                    removeLinhas(texto, n, linAtual); //Remove linha passada por parametro
+                } else if(op == 'l' || op == 'L') {
+                    system("cls");
+                    listaLinhas(texto, n);            //Lista texto ate a linha n
+                }
                 break;
             } else if(tmp2 == ' ') {
                 const char *c = op_lin.c_str();
@@ -375,9 +380,12 @@ void comand_DL(std::list<std::string> &texto, unsigned int &linAtual, char op) {
                             pause();
                             return;
                         }
-                        system("cls");
-                        if(op == 'd' || op == 'D')      removeLinhas(texto, n, m, linAtual); //Remove da linha n ate m
-                        else if(op == 'l' || op == 'L') listaLinhas(texto, n, m);            //Lista da linha n ate m
+                        if(op == 'd' || op == 'D') {
+                            removeLinhas(texto, n, m, linAtual); //Remove da linha n ate m
+                        } else if(op == 'l' || op == 'L') {
+                            system("cls");
+                            listaLinhas(texto, n, m);            //Lista da linha n ate m
+                        }
                         break;
                     }
                 }
