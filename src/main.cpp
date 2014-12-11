@@ -20,16 +20,14 @@ int main(int argc, char **argv) {
         system(titulo.c_str());
 
         openArq(texto, nomeArq, nomeArq, linAtual);	 //Abre ele
-        //system("cls");
         insertDepois(texto, linAtual, linAtual);	 //Ja inicia o programa no modo de edicao
         modoComando(texto, nomeArq, linAtual);		 //Quando sair vai para o modo de comando
     } else {
         system("title Novo arquivo - ELIS");    //Muda o titulo da janela
         comand_H();								//Ao iniciar mostra o comando ajuda
+        system("cls");
         modoComando(texto, linAtual);           //Inicia o modo de comando
     }
-
-    pause(); //Pausa o programa
 
     return 0;
 }

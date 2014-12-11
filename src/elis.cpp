@@ -4,13 +4,15 @@
 #include "constantes.hpp"
 
 void insertAntes(std::list<std::string> &texto, unsigned int &l, unsigned int &linAtual) {
-    if(l == 0) l++; 						   //Obviamente nao podemos inserir antes da posicao 0
-    unsigned int col = MIN_COL, lin = MIN_LIN; //Variaveis que representam espacos na tela
-    char c;                                    //Entrada do teclado
-    std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
-    std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
-    std::cout << "> ";
+    if(l == 0) l++;                             //Obviamente nao podemos inserir antes da posicao 0
+    unsigned int col = MIN_COL, lin = MIN_LIN;  //Variaveis que representam espacos na tela
+    char c;                                     //Entrada do teclado
+    std::string linha = "";                     //Variavel onde armazenaremos temporariamente a linha
+    std::list<std::string>::iterator it;        //Iterador para referenciar um elemento na lista
+    update(texto, linha, col);                  // Atualiza tela
+
     while(true) {
+        gotoxy(col, texto.size()+1);
         c = (char) getch();
         if(c == ESC) {                     //Tecla ESC
             it = texto.begin();
@@ -22,23 +24,43 @@ void insertAntes(std::list<std::string> &texto, unsigned int &l, unsigned int &l
             std::advance (it, l-1);        //Insere antes de uma determinada linha
             funcENTER(texto, linha, lin, col, it);
             l++;                           //Incrementa controle de linhas
+            update(texto, linha, col); // Atualiza tela
+        } else if(c == BACKSPACE) {         //Tecla BACKSPACE
+            funcBACKSPACE(linha, col, lin);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == TAB) {   //Tecla TAB
+            funcTAB(linha, lin, col);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == CTRL_C) { //CTRL+C para copiar linha
+            funcCopy(linha);
+        } else if(c == CTRL_V) { //CTRL+V para colar
+            funcPaste_I(texto, linha, lin, col, l);
         }
-        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
-        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
-        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
-        else if(c == CTRL_V)    funcPaste_I(texto, linha, lin, col, l);  		//CTRL+V para colar
         //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
         else if(c == CAR_ESP) {
             c = getche();
-            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
-            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
-            else if(c == UP)    continue;                       //Tecla para cima
-            else if(c == DOWN)  continue;                       //Tecla para baixo
-            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
-            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
-            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
-            else                continue;                       //Nao serao aceitas outras teclas
-        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+            if(c == LEFT) {             //Tecla pra esquerda
+                funcLEFT(lin, col);
+            } else if(c == RIGHT) {     //Tecla pra direita
+                funcRIGHT(linha, lin, col);
+            } else if(c == UP) {        //Tecla para cima
+                continue;
+            } else if(c == DOWN) {      //Tecla para baixo
+                continue;
+            } else if(c == DEL) {       //Tecla Delete
+                funcDELETE(linha, lin, col);
+                update(texto, linha, texto.size(), col); // Atualiza tela
+            } else if(c == HOME) {      //Tecla Home
+                funcHOME(lin, col);
+            } else if(c == END) {       //Tecla END
+                funcEND(linha, lin, col);
+            } else {                    //Nao serao aceitas outras teclas
+                continue;
+            }
+        } else {
+            addChar(linha, lin, col, c);    //Recebe caracter
+            imprimeLinha(linha, texto.size(), col);
+        }
     }
     linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
 }
@@ -88,8 +110,10 @@ void insertDepois(std::list<std::string> &texto, unsigned int &l, unsigned int &
     char c;                                    //Entrada do teclado
     std::string linha = "";                    //Variavel onde armazenaremos temporariamente a linha
     std::list<std::string>::iterator it;       //Iterador para referenciar um elemento na lista
-    std::cout << "> ";
+    update(texto, linha, col);                  // Atualiza tela
+
     while(true) {
+        gotoxy(col, texto.size()+1);
         c = (char) getch();
         if(c == ESC) {                     //Tecla ESC
             it = texto.begin();
@@ -101,23 +125,43 @@ void insertDepois(std::list<std::string> &texto, unsigned int &l, unsigned int &
             std::advance (it, linAtual);   //Insere depois de uma determinada linha
             funcENTER(texto, linha, lin, col, it);
             linAtual++;                    //Incrementa controle de linhas
+            update(texto, linha, col); // Atualiza tela
+        } else if(c == BACKSPACE) {         //Tecla BACKSPACE
+            funcBACKSPACE(linha, col, lin);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == TAB) {   //Tecla TAB
+            funcTAB(linha, lin, col);
+            update(texto, linha, texto.size(), col); // Atualiza tela
+        } else if(c == CTRL_C) { //CTRL+C para copiar linha
+            funcCopy(linha);
+        } else if(c == CTRL_V) { //CTRL+V para colar
+            funcPaste_I(texto, linha, lin, col, l);
         }
-        else if(c == BACKSPACE) funcBACKSPACE(linha, col, lin);                 //Tecla BACKSPACE
-        else if(c == TAB)       funcTAB(linha, lin, col);                       //Tecla TAB
-        else if(c == CTRL_C)    funcCopy(linha);								//CTRL+C para copiar linha
-        else if(c == CTRL_V)    funcPaste_A(texto, linha, lin, col, linAtual);  //CTRL+V para colar
-        //Alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
+        //Tratamento para alguns caracteres diferentes/especiais (Setas direcionais, delete, home, ...)
         else if(c == CAR_ESP) {
             c = getche();
-            if(c == LEFT)       funcLEFT(lin, col);             //Tecla pra esquerda
-            else if(c == RIGHT) funcRIGHT(linha, lin, col);     //Tecla pra direita
-            else if(c == UP)    continue;                       //Tecla para cima
-            else if(c == DOWN)  continue;                       //Tecla para baixo
-            else if(c == DEL)   funcDELETE(linha, lin, col);    //Tecla Delete
-            else if(c == HOME)  funcHOME(lin, col);             //Tecla Home
-            else if(c == END)   funcEND(linha, lin, col);       //Tecla END
-            else                continue;                       //Nao serao aceitas outras
-        } else                  addChar(linha, lin, col, c);    //Recebe caracter
+            if(c == LEFT) {             //Tecla pra esquerda
+                funcLEFT(lin, col);
+            } else if(c == RIGHT) {     //Tecla pra direita
+                funcRIGHT(linha, lin, col);
+            } else if(c == UP) {        //Tecla para cima
+                continue;
+            } else if(c == DOWN) {      //Tecla para baixo
+                continue;
+            } else if(c == DEL) {       //Tecla Delete
+                funcDELETE(linha, lin, col);
+                update(texto, linha, texto.size(), col); // Atualiza tela
+            } else if(c == HOME) {      //Tecla Home
+                funcHOME(lin, col);
+            } else if(c == END) {       //Tecla END
+                funcEND(linha, lin, col);
+            } else {                    //Nao serao aceitas outras teclas
+                continue;
+            }
+        } else {
+            addChar(linha, lin, col, c);    //Recebe caracter
+            imprimeLinha(linha, texto.size(), col);
+        }
     }
     linAtual = texto.size(); //Por padrao, sempre ao final de uma insercao definimos a ultima linha como atual
 }
@@ -185,9 +229,9 @@ void funcPaste_A(std::list<std::string> &texto, std::string &linha, unsigned int
 }
 
 void imprimeLinha(std::string linha, unsigned int lin, unsigned int col) {
-    gotoxy(MIN_COL, lin);
+    gotoxy(MIN_COL, lin+1);
     std::cout << linha;   //Imprime a linha no local adequado
-    gotoxy(col, lin);
+    gotoxy(col, lin+1);
 }
 
 void setLinha(std::list<std::string> &texto, unsigned int &linAtual, unsigned int linha) {
@@ -236,6 +280,16 @@ void listaLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m) 
     }
     std::cout << std::endl;
     pause();
+}
+
+void print(std::list<std::string> &texto) {
+    std::list<std::string>::iterator it;       								   //Iterador para referenciar um elemento na lista
+    int i = 1;
+    system("cls");
+    for(it = texto.begin(); it != texto.end(); it++, i++) {
+       std::cout << i << " ";
+       std::cout << *it << std::endl;
+    }
 }
 
 void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int &linAtual) {

@@ -27,7 +27,7 @@ void funcBACKSPACE(std::string &linha, unsigned int &col, unsigned int lin) {
         gotoxy(linha.length() + MIN_COL + 1, lin);
         std::cout << "\b \b";
         col--;                      					//Decrementa cursor de colunas
-        imprimeLinha(linha, lin, col);
+        //imprimeLinha(linha, lin, col);
     } else
         return;
 }
@@ -78,5 +78,5 @@ void addChar(std::string &linha, unsigned int lin, unsigned int &col, char c) {
     if((col == MAX_COL) || (linha.length() + MIN_COL == MAX_COL)) return; //Verifica se ainda pode adicionar
     linha.insert(linha.begin() + (col - MIN_COL), c);                     //Concatena caracteres
     col++;                                                                //Incrementa contador de colunas
-    imprimeLinha(linha, lin, col);
+    //imprimeLinha(linha, lin, col);
 }

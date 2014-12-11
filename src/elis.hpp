@@ -43,6 +43,9 @@ void listaLinhas(std::list<std::string> &texto, unsigned int n);
 //Lista o texto da linha n ate m
 void listaLinhas(std::list<std::string> &texto, unsigned int n, unsigned int m);
 
+//Mostra o conteudo do arquivo
+void print(std::list<std::string> &texto);
+
 //Remove uma linha
 void removeLinhas(std::list<std::string> &texto, unsigned int n, unsigned int &linAtual);
 

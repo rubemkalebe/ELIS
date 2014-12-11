@@ -10,8 +10,8 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
     std::string nomeArq2write, nomeArq2read; //Variaveis para salvar ou ler arquivo
     //O laco do modo de comando executara indefinidamente enquanto o usuario nao quiser sair
     do {
-        system("cls");
-        std::cout << ": ";
+        print(texto);
+        std::cout << "\n: ";
         op = getche();
         if((op >= 'A' && op <= 'Z') || (op >= 'a' && op <= 'z')) { //Descarta outras teclas
             switch(op) {
@@ -129,8 +129,8 @@ void modoComando(std::list<std::string> &texto, std::string nomeArq, unsigned in
     std::string nomeArq2write = nomeArq, nomeArq2read; //Variaveis para salvar ou ler arquivo
     //O laco do modo de comando executara indefinidamente enquanto o usuario nao quiser sair
     do {
-        system("cls");
-        std::cout << ": ";
+        print(texto);
+        std::cout << "\n: ";
         op = getche();
         if((op >= 'A' && op <= 'Z') || (op >= 'a' && op <= 'z')) { //Descarta outras teclas
             switch(op) {
