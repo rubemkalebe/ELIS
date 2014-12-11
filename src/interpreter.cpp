@@ -50,6 +50,8 @@ void modoComando(std::list<std::string> &texto, unsigned int &linAtual) {
                         system("cls");
                         std::cout << "Digite o nome do arquivo para grava\207\306o: ";
                         std::cin >> nomeArq2write;
+                        std::string titulo = "title " + nomeArq2write + " - ELIS";
+                        system(titulo.c_str());
                         writeArq(texto, nomeArq2write);
                         alterado = false;
                     } else if(tmp == ENTER && nomeArq2write == "") { //Se o usuario tentar salvar sem ter um nome para o arquivo

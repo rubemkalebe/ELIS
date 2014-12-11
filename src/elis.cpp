@@ -294,6 +294,8 @@ void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &no
             if(tmp == 's' || tmp == 'S') {
                 for(it = texto.begin(); it != texto.end(); it = texto.begin())
                     texto.erase(it);               //Apaga linhas remanescentes
+            } else {
+                return;
             }
         }
         while(getline(fin, linha))
@@ -302,9 +304,9 @@ void openArq(std::list<std::string> &texto, std::string nomeArq, std::string &no
         fin.close();                           //Fecha arquivo
     } else {
             nomeArq2write = nomeArq;
-            system("cls");
             writeArq(texto, nomeArq);
     }
+    system("cls");
 }
 
 void readArq(std::list<std::string> &texto, std::string nomeArq, std::string &nomeArq2write, unsigned int &linAtual) {
