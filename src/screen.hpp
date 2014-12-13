@@ -11,4 +11,7 @@ void update(std::list<std::string> &texto, std::string &linha, unsigned int col)
 void update(std::list<std::string> &texto, std::string &linha, unsigned int lin,
             unsigned int col);
 
+//Identifica a posicao do cursor
+void position(int &x, int &y);
+
 #endif // SCREEN_HPP

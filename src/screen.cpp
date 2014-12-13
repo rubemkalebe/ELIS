@@ -19,3 +19,10 @@ void update(std::list<std::string> &texto, std::string &linha, unsigned int lin,
     imprimeLinha(linha, lin, col);
     gotoxy(col, linha.size()+1);
 }
+
+void position(int &x, int &y) {
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbiInfo);
+    x = csbiInfo.dwCursorPosition.X;
+    y = csbiInfo.dwCursorPosition.Y;
+}
